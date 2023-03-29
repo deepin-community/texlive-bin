@@ -1,0 +1,98 @@
+adjust built-in search paths for kpathsea library to Debian standard
+---
+ texk/kpathsea/texmf.cnf |   46 ++++++++++++----------------------------------
+ 1 file changed, 12 insertions(+), 34 deletions(-)
+
+--- texlive-bin-2022.20220321.62855.orig/texk/kpathsea/texmf.cnf
++++ texlive-bin-2022.20220321.62855/texk/kpathsea/texmf.cnf
+@@ -62,20 +62,23 @@
+ TEXMFROOT = $SELFAUTOPARENT
+ 
+ % The main tree of distributed packages and programs:
+-TEXMFDIST = $TEXMFROOT/texmf-dist
++TEXMFDIST = /usr/share/texlive/texmf-dist
+ 
+ % We used to have a separate /texmf tree with some core programs and files.
+ % Keep the variable name.
+ TEXMFMAIN = $TEXMFDIST
+ 
++% The Debian search tree
++TEXMFDEBIAN = /usr/share/texmf
++
+ % Local additions to the distribution trees.
+-TEXMFLOCAL = $SELFAUTOGRANDPARENT/texmf-local
++TEXMFLOCAL = /usr/local/share/texmf
+ 
+ % TEXMFSYSVAR, where *-sys store cached runtime data.
+-TEXMFSYSVAR = $TEXMFROOT/texmf-var
++TEXMFSYSVAR = /var/lib/texmf
+ 
+ % TEXMFSYSCONFIG, where *-sys store configuration data.
+-TEXMFSYSCONFIG = $TEXMFROOT/texmf-config
++TEXMFSYSCONFIG = /etc/texmf
+ 
+ % Per-user texmf tree(s) -- organized per the TDS, as usual.  To define
+ % more than one per-user tree, set this to a list of directories in
+@@ -108,7 +111,7 @@
+ % The odd-looking $TEXMFAUXTREES$TEXMF... construct is so that if no auxtree is
+ % ever defined (the 99% common case), no extra elements will be added to
+ % the search paths. tlmgr takes care to end any value with a trailing comma.
+-TEXMF = {$TEXMFAUXTREES$TEXMFCONFIG,$TEXMFVAR,$TEXMFHOME,!!$TEXMFLOCAL,!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFDIST}
++TEXMF = {$TEXMFAUXTREES$TEXMFCONFIG,$TEXMFVAR,$TEXMFHOME,!!$TEXMFLOCAL,!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFDEBIAN,!!$TEXMFDIST}
+ 
+ % Where to look for, and where mktexlsr creates, ls-R files. By default,
+ % this is all and only the !! elements of TEXMF, so that mktexlsr does not
+@@ -116,7 +119,7 @@
+ % present, it will be used, and the disk will not (usually) be searched,
+ % regardless of !!.  Although in principle a directory listed here need
+ % not contain an ls-R file, in practice they all should.
+-TEXMFDBS = {!!$TEXMFLOCAL,!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFDIST}
++TEXMFDBS = {!!$TEXMFLOCAL,!!$TEXMFSYSCONFIG,!!$TEXMFSYSVAR,!!$TEXMFDEBIAN,!!$TEXMFDIST}
+ 
+ % The system trees.  These are the trees that are shared by all users.
+ % If a tree appears in this list, the mktex* scripts will use
+@@ -133,7 +136,7 @@
+ % Where generated fonts may be written.  This tree is used when the sources
+ % were found in a system tree and either that tree wasn't writable, or the
+ % varfonts feature was enabled in MT_FEATURES in mktex.cnf.
+-VARTEXFONTS = $TEXMFVAR/fonts
++VARTEXFONTS = /var/cache/fonts
+ 
+ % On some systems, there will be a system tree which contains all the font
+ % files that may be created as well as the formats.  For example
+@@ -565,33 +568,8 @@
+ % since we don't want to scatter ../'s throughout the value.  Hence we
+ % explicitly list every directory.  Arguably more understandable anyway.
+ %
+-TEXMFCNF = {\
+-$SELFAUTOLOC,\
+-$SELFAUTOLOC/share/texmf-local/web2c,\
+-$SELFAUTOLOC/share/texmf-dist/web2c,\
+-$SELFAUTOLOC/share/texmf/web2c,\
+-$SELFAUTOLOC/texmf-local/web2c,\
+-$SELFAUTOLOC/texmf-dist/web2c,\
+-$SELFAUTOLOC/texmf/web2c,\
+-\
+-$SELFAUTODIR,\
+-$SELFAUTODIR/share/texmf-local/web2c,\
+-$SELFAUTODIR/share/texmf-dist/web2c,\
+-$SELFAUTODIR/share/texmf/web2c,\
+-$SELFAUTODIR/texmf-local/web2c,\
+-$SELFAUTODIR/texmf-dist/web2c,\
+-$SELFAUTODIR/texmf/web2c,\
+-\
+-$SELFAUTOGRANDPARENT/texmf-local/web2c,\
+-$SELFAUTOPARENT,\
+-\
+-$SELFAUTOPARENT/share/texmf-local/web2c,\
+-$SELFAUTOPARENT/share/texmf-dist/web2c,\
+-$SELFAUTOPARENT/share/texmf/web2c,\
+-$SELFAUTOPARENT/texmf-local/web2c,\
+-$SELFAUTOPARENT/texmf-dist/web2c,\
+-$SELFAUTOPARENT/texmf/web2c\
+-}
++TEXMFCNF = {/etc/texmf/web2c,/usr/local/share/texmf/web2c,/usr/share/texmf/web2c,/usr/share/texlive/texmf-dist/web2c,$SELFAUTOPARENT/share/texmf/web2c}
++
+ %
+ % For reference, here is the old brace-using definition:
+ %TEXMFCNF = {$SELFAUTOLOC,$SELFAUTODIR,$SELFAUTOPARENT}{,{/share,}/texmf{-local,}/web2c}

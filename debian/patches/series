@@ -1,0 +1,15 @@
+debian-use-xdvi-bin
+debian-builtin-searchpath
+debian-no-tl-scripts
+debian-remove-unneeded-x-libs-linking
+debian-SDE-docs-in-tex-etex-manpage
+debian-t4ht-correct-expansion
+# from here on upstream patches
+#disable-seetex-stdin-tests
+# to be sent upstream at some point
+gftodvi_man.patch
+spelling_in_manual_pages
+b20034c3cf23f813a70cb60de8e1761a443f5fbf.patch
+#spelling_in_binaries
+bad-whatis-entry_xml2pmx.1
+wrong-manual-section_axohelp.1

@@ -1,0 +1,45 @@
+---
+ texk/web2c/man/gftodvi.man |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+--- a/texk/web2c/man/gftodvi.man
++++ b/texk/web2c/man/gftodvi.man
+@@ -28,7 +28,7 @@ program converts a generic font
+ file output by, for example,
+ .BR mf (1),
+ to a device independent (DVI) file (that can then be typeset using the same
+-software that has already been written for \*(TX). The characters in the
++software that has already been written for \*(TX).  The characters in the
+ .I gf
+ file will appear one per page, with labels, titles, and annotations
+ as specified in Appendix H (Hardcopy Proofs) of
+@@ -39,11 +39,11 @@ uses other fonts in addition to the main
+ .I gf
+ file.
+ A `gray' font is used to typeset the
+-pixels that actually make up the character. (We wouldn't
++pixels that actually make up the character.  (We wouldn't
+ want all the pixels to be simply black, since then labels,
+ key points, and other information would be lost.)  A `title' font
+-is used for the information at the top of the page. A `label' font
+-is used for the labels on key points of the figure. A `slant'
++is used for the information at the top of the page.  A `label' font
++is used for the labels on key points of the figure.  A `slant'
+ font is used to typeset diagonal lines, which
+ otherwise have to be simulated using horizontal and vertical rules.
+ The default gray, title, and label fonts are
+@@ -88,12 +88,12 @@ The
+ on the command line must be complete. Because
+ the resolution is part of the extension, it would not make
+ sense to append a default extension as is done with \*(TX or
+-DVI-reading software. The output file name uses the same
++DVI-reading software.  The output file name uses the same
+ root as the
+ .I gf
+ file, with the
+ .B .dvi
+-extension added. For example, the input file
++extension added.  For example, the input file
+ .I cmr10.2602gf
+ would become
+ .IR cmr10.dvi .

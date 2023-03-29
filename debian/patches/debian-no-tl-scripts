@@ -1,0 +1,16 @@
+don't install tl_scripts, we do this separately in texlive-nonbin
+---
+ texk/texlive/Makefile.am |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- texlive-bin.orig/texk/texlive/Makefile.am
++++ texlive-bin/texk/texlive/Makefile.am
+@@ -5,7 +5,7 @@
+ ## Copyright 2009-2014 Peter Breitenlohner <tex-live@tug.org>
+ ## You may freely use, modify and/or distribute this file.
+ ##
+-SUBDIRS = tl_support
++SUBDIRS =
+ if LINKED_SCRIPTS
+ SUBDIRS += linked_scripts
+ endif LINKED_SCRIPTS

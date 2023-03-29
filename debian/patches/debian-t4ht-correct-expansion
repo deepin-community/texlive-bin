@@ -1,0 +1,17 @@
+Fix for broken t4ht
+see http://dirkmittler.homeip.net/blog/archives/5404#comment-11510
+---
+ texk/tex4htk/t4ht.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- texlive-bin.orig/texk/tex4htk/t4ht.c
++++ texlive-bin/texk/tex4htk/t4ht.c
+@@ -850,7 +850,7 @@ static void execute_script
+ #line 1462 "./tex4ht-t4ht.tex"
+ 
+ #ifdef KPATHSEA
+-const char * texmf = kpse_var_value( "TEXMFDIST" );
++const char * texmf = "/usr/share/texlive";
+ #endif
+ 
+ 

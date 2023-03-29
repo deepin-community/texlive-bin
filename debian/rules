@@ -1,4 +1,276 @@
 #!/usr/bin/make -f
+# debian/rules file for texlive-bin
+
+export SHELL=/bin/bash
+export CONFIG_SHELL=/bin/bash
+
+# this ships out the test logs when a test failed, set it in any case
+export VERBOSE=1
+
+#
+# the configure code already checks a lot, but it does not catch
+# all cases. We have now two ways to test for where to build.
+# One by disabling on the other platforms, one by whitelisting
+# and building only on some platforms.
+LUAJIT_GOOD_ARCHS := amd64 armel armhf hurd-i386 i386 kfreebsd-amd64 kfreebsd-i386 powerpc
+
+# In case one wants to build with old automake (<< 1.13.1), the following
+# variable has to be set. By default the debian/control requires high
+# enough versions of automake and friends
+#export AM_V_P=false
+
+include /usr/share/dpkg/architecture.mk
+
+ifeq ($(DEB_HOST_ARCH), alpha)
+  export LDFLAGS = -Wl,--no-relax
+endif
+
+#
+#
+# architectures where icu related programs (xetex) have problems
+# and core dump etc. Possible fix, but sub-optimal because slowing down
+# programs
+# TODO should be checked whether this still happens!
+BROKEN_ICU_ARCHS := sparc64
+ifneq (,$(findstring $(DEB_HOST_ARCH), $(BROKEN_ICU_ARCHS)))
+  export CFLAGS += -DU_IS_BIG_ENDIAN=0
+  export CXXFLAGS += -DU_IS_BIG_ENDIAN=0
+else
+endif
+
+
+# for whitelisting good archs
+ifeq (,$(filter $(DEB_HOST_ARCH), $(LUAJIT_GOOD_ARCHS)))
+  # it is not in the list of good archs -> disable luajittex
+  BUILDLUAJITTEX=--disable-luajittex --disable-mfluajit --disable-luajithbtex
+  WITHLUAJIT=no
+else
+  # not necessary, but for completeness
+  BUILDLUAJITTEX=--enable-luajittex --enable-mfluajit --enable-luajithbtex
+  WITHLUAJIT=yes
+endif
+
+#
+# it seems that ARM metafont segfaults due to a problem with armhf's malloc
+# see Debian bug #678604
+# Building in arm mode helps
+#
+ifeq ($(DEB_HOST_ARCH), armhf)
+  export CFLAGS += -marm
+endif
+
+# warning: if the --with autoreconf is removed then
+# the patch debian/patches/debian-no-linked-scripts
+# must be adapted to also patch the Makefile.in!
 
 %:
-	dh $@
+	dh $@ --builddirectory Work --max-parallel=8
+
+#
+# we use TL provided reautoconf script as it has some built-in magic
+override_dh_autoreconf-arch:
+	dh_autoreconf ./reautoconf
+
+override_dh_autoreconf-indep:
+	# Nothing to do here
+
+# this was used before, but I am not sure whether the -as-needed is necessary
+#	dh_autoreconf --as-needed
+
+#
+# poppler is used two times in TeX Live:
+# once for pdftex/xetex
+# once for luatex
+# - the pdftex/xetex version is controlled via --with-system-xpdf
+# - the luatex version is controlled via --with-system-poppler
+#
+# Status as of 20180118
+# poppler in Debian is NOT enough for current, so we use the shipped
+# libraries for both.
+#	--with-system-poppler			\
+#	--with-system-xpdf			\
+#
+# disable-largefile seems to break omegafonts, as they core dump
+# leave it as is for now and see what else pops up
+#	--disable-largefile			\
+
+override_dh_auto_configure-arch:
+	# we have to make sure that the mendex test case that is added
+	# by a patch is executable, same for pdftexdir - stupid dpkg-source
+	chmod 0755 texk/mendexk/tests/mendex.test
+	chmod 0755 texk/web2c/pdftexdir/expanded.test
+	# run out configure script
+	dh_auto_configure -- -C --prefix=/usr	\
+	--datarootdir=/usr/share/texlive	\
+	--disable-native-texlive-build		\
+	--disable-missing			\
+	--disable-linked-scripts		\
+	--with-banner-add=/Debian		\
+	--enable-shared				\
+	--with-system-zlib			\
+	--with-system-zzlib			\
+	--with-system-potrace			\
+	--with-system-graphite2			\
+	--with-system-harfbuzz 			\
+	--with-system-libgs			\
+	--with-system-pixman			\
+	--with-system-libpaper			\
+	--with-system-zziplib			\
+	--with-system-icu			\
+	--with-system-gmp			\
+	--with-system-mpfr			\
+	--with-system-freetype2			\
+	--with-freetype2-include=/usr/include/freetype2 \
+	--with-system-libpng			\
+	--with-system-gd			\
+	--with-system-cairo 			\
+	--with-system-teckit			\
+	--with-x				\
+	--with-mf-x-toolkit			\
+	--with-xdvi-x-toolkit=xaw		\
+	$(BUILDLUAJITTEX)			\
+	--disable-lcdf-typetools		\
+	--disable-biber				\
+	--disable-dvipng			\
+	--disable-ps2eps			\
+	--disable-psutils			\
+	--disable-t1utils			\
+	--disable-cjkutils			\
+	--disable-chktex			\
+	--disable-dvidvi			\
+	--disable-lacheck			\
+	--disable-texdoctk			\
+	--disable-ttf2pk			\
+	--disable-dvisvgm			\
+	--enable-ttf2pk2			\
+	--enable-ipc				
+	# make sure that the lacheck test script is executable
+	# this is only necessary since quilt/dpkg does not support
+	# permissions
+	chmod ugo+x utils/lacheck/test-def.test
+
+override_dh_auto_configure-indep:
+	# Nothing to do here
+
+override_dh_auto_install-arch:
+	dh_auto_install -- DESTDIR=$(CURDIR)/debian/tmp
+
+override_dh_auto_install-indep:
+	# Nothing to do here
+
+override_dh_install-arch:
+	# remove .la files which we do not install, so that dh_install
+	# can work with --fail-missing
+	rm -f debian/tmp/usr/lib/*.la debian/tmp/usr/lib/*/*.la
+	# mv c-auto.h into arch-dependent include path
+	mkdir -p debian/tmp/usr/include/$(DEB_HOST_MULTIARCH)/kpathsea
+	mv debian/tmp/usr/include/kpathsea/c-auto.h \
+	 	debian/tmp/usr/include/$(DEB_HOST_MULTIARCH)/kpathsea/
+	dh_install --sourcedir=$(CURDIR)/debian/tmp
+	dh_missing --sourcedir=$(CURDIR)/debian/tmp --fail-missing
+
+execute_after_dh_install-arch:
+	# replace xdvi wrapper shell script with perl variant to
+	# allow for opening of gz etc files
+	rm debian/texlive-binaries/usr/bin/xdvi
+	install -m 0755 debian/xdvi-pl debian/texlive-binaries/usr/bin/xdvi
+	# remove texlive directories, they should not be shipped here
+	rm -rf debian/texlive-binaries/usr/share/texlive
+	# remove wrongly added info/dir.gz
+	rm -f debian/texlive-binaries/usr/share/info/dir*
+	# remove tlbuild info document, not needed
+	rm debian/texlive-binaries/usr/share/info/tlbuild.info*
+	# remove various man pages
+	for i in latex latex-dev pdflatex pdflatex-dev lamed lualatex-dev dvilualatex-dev \
+		dviluatex platex-dev uplatex-dev xelatex-dev amstex ; do \
+	  rm debian/texlive-binaries/usr/share/man/man1/$$i.1* ; \
+	done
+	#
+	# remove tex4ht links, they are shipped with tl-htmlxml
+	for i in ht htcontext htlatex htmex httex httexi htxelatex htxetex mk4ht xhlatex ; do \
+	  rm debian/texlive-binaries/usr/bin/$$i ; \
+	done
+	#
+	# install dvisvgm man page
+	#install -m 0644 texk/dvisvgm/dvisvgm-src/doc/dvisvgm.1 \
+	#	debian/texlive-binaries/usr/share/man/man1/dvisvgm.1
+	# for alternatives treatment we rename usr/bin/bibtex to
+	# usr/bin/bibtex.original
+	mv debian/texlive-binaries/usr/bin/bibtex \
+	   debian/texlive-binaries/usr/bin/bibtex.original
+	mv debian/texlive-binaries/usr/share/man/man1/bibtex.1 \
+	   debian/texlive-binaries/usr/share/man/man1/bibtex.original.1
+	# find dangling symlinks in /usr/bin and error out if found
+	err=0 ; for i in `find debian/texlive-binaries/usr/bin -type l` ; do \
+	  f=`realpath $$i` ; \
+	  if [ ! -r "$$f" ] ; then \
+	    echo "ERROR: dangling symbolic link $$f" ; \
+	    err=1 ; \
+	  fi ; \
+	done ; if [ $$err = 1 ] ; then exit 1 ; fi
+
+override_dh_installdocs-arch:
+	dh_installdocs
+	dh_installdocs -plibptexenc1 -plibptexenc-dev \
+		texk/ptexenc/COPYRIGHT texk/ptexenc/README
+	dh_installdocs -plibkpathsea6 -plibkpathsea-dev \
+		texk/kpathsea/AUTHORS \
+		texk/kpathsea/NEWS texk/kpathsea/PROJECTS \
+		texk/kpathsea/README
+	dh_installdocs -plibsynctex2 -plibsynctex-dev \
+		texk/web2c/synctexdir/README.txt	\
+		texk/web2c/synctexdir/synctex_parser_readme.txt
+ifeq ($(WITHLUAJIT), yes)
+	dh_installdocs -plibtexluajit2 -plibtexluajit-dev
+endif
+
+override_dh_installdocs-indep:
+	dh_installdocs -plibtexlua53 -plibtexlua53-dev
+
+override_dh_installchangelogs:
+	dh_installchangelogs
+	dh_installchangelogs -plibkpathsea6 -plibkpathsea-dev \
+		texk/kpathsea/ChangeLog
+	dh_installchangelogs -plibptexenc1 -plibptexenc-dev \
+		texk/ptexenc/ChangeLog
+	dh_installchangelogs -plibsynctex2 -plibsynctex-dev \
+		texk/web2c/synctexdir/ChangeLog
+	dh_installchangelogs -plibtexlua53-5 -plibtexlua-dev \
+		libs/lua53/TLpatches/ChangeLog
+ifeq ($(WITHLUAJIT), yes)
+	dh_installchangelogs -plibtexluajit2 -plibtexluajit-dev \
+		libs/luajit/TLpatches/ChangeLog
+endif
+
+override_dh_compress:
+	dh_compress -X.pdf
+
+override_dh_missing:
+	# already called above with --fail-missing, no idea
+	# why it still lists each and every file as not being
+	# installed, seems to be some wonderful magic of dh
+	# which nobody can understand
+	true
+
+override_dh_makeshlibs:
+	dh_makeshlibs -plibkpathsea6
+	dh_makeshlibs -plibptexenc1
+	dh_makeshlibs -plibsynctex2
+	dh_makeshlibs -plibtexlua53-5
+ifeq ($(WITHLUAJIT), yes)
+	dh_makeshlibs -plibtexluajit2
+endif
+
+SHLIBDEPS = -l debian/libkpathsea6/usr/lib/* \
+		-l debian/libptexenc1/usr/lib/* \
+		-l debian/libsynctex2/usr/lib/* \
+		-l debian/libtexlua53-5/usr/lib/*
+
+ifeq ($(WITHLUAJIT), yes)
+	SHLIBDEPS += -l debian/libtexluajit2/usr/lib/*
+endif
+override_dh_shlibdeps:
+	dh_shlibdeps $(SHLIBDEPS)
+
+override_dh_clean:
+	dh_clean -X.orig

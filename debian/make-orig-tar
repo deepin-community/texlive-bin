@@ -1,0 +1,99 @@
+
+gitmode=1
+if [ "$1" = "-svn" ] ; then
+  gitmode=0
+  shift
+fi
+
+if [ -n "$1" ] ; then
+  svnroot="$1"
+else
+  if [ $gitmode = 1 ] ; then
+    svnroot=~/Development/TeX/texlive.git/Build/source
+  else
+    svnroot=~/Development/TeX/texlive-svn/Build/source
+  fi
+fi
+baseyear=2020
+
+cmd="svn info"
+if [ $gitmode = 1 ] ; then
+  cmd="git svn info"
+fi
+svni=$(cd $svnroot ; $cmd | grep "^Last Changed Rev" | awk '{print$4}')
+verstr=texlive-bin-$baseyear.`date +%Y%m%d`.$svni
+pkgstr=texlive-bin_$baseyear.`date +%Y%m%d`.$svni
+
+if [ -r $verstr ] ; then
+  echo "already existing: $verstr, exit!"
+  exit 1
+fi
+
+cmd="svn status --no-ignore"
+if [ $gitmode = 1 ] ; then
+  cmd="git status --ignored --short"
+fi
+svnstat=$(cd $svnroot ; $cmd)
+if [ -n "$svnstat" ] ; then
+  echo "Strange files present, stopping!"
+  echo $svnstat
+  exit 1
+fi
+
+echo "copying"
+cp -a $svnroot $verstr
+rm -rf $verstr/inst
+rm -rf $verstr/Work
+# packaged separately:
+rm -rf $verstr/utils/biber
+rm -rf $verstr/utils/asymptote
+rm -rf $verstr/utils/xindy
+rm -rf $verstr/utils/ps2eps
+rm -rf $verstr/utils/t1utils
+# irrelevant for sources on Linux, Win32 only
+# don't remove the source, automake checks for these files in reautoconf!
+find $verstr -name \*.dll -o -name \*.exe | xargs rm
+
+#
+# remove system libraries, keep only teckit and lua52 and libpng
+# teckit: for now only in experimental
+# poppler and xpdf are required until poppler is up to 62
+#	poppler		\
+#	xpdf		\
+#
+
+for i in \
+	graphite2	\
+	gmp		\
+	harfbuzz	\
+	icu		\
+	libpaper	\
+	mpfr		\
+	pixman		\
+	potrace		\
+	zlib		\
+	zziplib		\
+	cairo		\
+	freetype2	\
+	libpng		\
+	teckit		\
+	gd		\
+	; do
+  rm -rf $verstr/libs/$i
+done
+
+# remove non-free stuff from teckit
+rm -rf $verstr/libs/teckit/TECkit-src/SFconv
+
+# remove pplib docs with too much javascript I don't want 
+# to work on
+rm -rf $verstr/texk/web2c/luatexdir/luapplib/html
+
+# remove VCS traces
+find $verstr -name \.svn -exec rm -rf '{}' \;
+find $verstr -name \.git -exec rm -rf '{}' \;
+find $verstr -name autom4te.cache -exec rm -rf '{}' \;
+
+echo "packing up"
+tar -cJf $pkgstr.orig.tar.xz $verstr
+

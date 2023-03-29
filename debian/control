@@ -1,15 +1,178 @@
-Source: template-repository
-Section: unknown
+Source: texlive-bin
+Section: tex
 Priority: optional
-Maintainer: Tsic404 <liuheng@deepin.org>
-Build-Depends: debhelper (>= 11)
-Standards-Version: 4.1.3
-Homepage: https://github.com/deepin-community/template-repository
-#Vcs-Browser: https://salsa.debian.org/debian/deepin-community-template-repository
-#Vcs-Git: https://salsa.debian.org/debian/deepin-community-template-repository.git
+Maintainer: Debian TeX Task Force <debian-tex-maint@lists.debian.org>
+Uploaders: Norbert Preining <norbert@preining.info>,
+	Hilmar Preusse <hille42@web.de>
+Build-Depends:
+  debhelper-compat (= 13)
+Build-Depends-Arch:
+  autoconf,
+  automake,
+  bison,
+  flex,
+  libbrotli-dev,
+  libcairo2-dev,
+  libfontconfig1-dev,
+  libfreetype-dev,
+  libgmp-dev,
+  libgraphite2-dev,
+  libharfbuzz-dev (>= 2.4),
+  libicu-dev,
+  libmpfr-dev,
+  libpaper-dev,
+  libpixman-1-dev,
+  libpng-dev,
+  libteckit-dev,
+  libtool,
+  libxaw7-dev,
+  libxi-dev,
+  libzzip-dev,
+  m4,
+  texlive-binaries <cross>,
+  zlib1g-dev | libz-dev
+Rules-Requires-Root: no
+Standards-Version: 4.5.1
+Homepage: https://www.tug.org/texlive/
+Vcs-Git: https://github.com/debian-tex/texlive-bin.git
+Vcs-Browser: https://github.com/debian-tex/texlive-bin
 
-Package: template-repository
+Package: texlive-binaries
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Multi-Arch: foreign
+Depends: libptexenc1 (>= ${source:Version}),
+  libptexenc1 (<< ${source:Version}.1~),
+  libkpathsea6 (>= ${source:Version}),
+  libkpathsea6 (<< ${source:Version}.1~),
+  libsynctex2 (>= ${source:Version}),
+  libsynctex2 (<< ${source:Version}.1~),
+  libtexlua53-5 (>= ${source:Version}),
+  libtexlua53-5 (<< ${source:Version}.1~),
+  libtexluajit2 (>= ${source:Version}) [amd64 armel armhf hurd-i386 i386 kfreebsd-amd64 kfreebsd-i386 powerpc],
+  libtexluajit2 (<< ${source:Version}.1~) [amd64 armel armhf hurd-i386 i386 kfreebsd-amd64 kfreebsd-i386 powerpc],
+  sse2-support [i386],
+  t1utils, tex-common, perl:any,
+  ${shlibs:Depends}, ${misc:Depends}
+Recommends: texlive-base, dvisvgm
+Replaces: ptex-bin, mendexk, jmpost, luatex (<< 2014), gregorio (<= 2.3-1), texlive-extra-utils (<< 2020.20200329), texlive-luatex (<< 2020.20200329)
+Conflicts: mendexk, makejvf, jmpost
+Breaks: texlive-base (<< 2021), luatex (<< 2014), gregorio (<= 2.3-1), texlive-extra-utils (<< 2020.20200329), texlive-luatex (<< 2020.20200329)
+Provides: texlive-base-bin, makejvf, mendexk, jmpost, luatex
+Description: Binaries for TeX Live
+ This package contains all the binaries of TeX Live packages.
+ .
+ Note that this package alone has hardly any functionality.  Rather,
+ choose the texlive-* packages you want to use, e.g.
+ texlive-latex-recommended or context
+
+Package: libkpathsea6
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: TeX Live: path search library for TeX (runtime part)
+ This package contains the runtime part of the Kpathsea[rch] library,
+ which implements generic path searching, configuration, and
+ TeX-specific file searching.
+
+Package: libkpathsea-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}, libkpathsea6 (= ${binary:Version}), ${shlibs:Depends}
+Description: TeX Live: path search library for TeX (development part)
+ This package contains the static library and header files for the
+ Kpathsea[rch] library, which implements generic path searching,
+ configuration, and TeX-specific file searching.
+
+Package: libptexenc1
+Section: libs
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Description: TeX Live: pTeX encoding library
+ library for encoding support in pTeX, a Japanese TeX engine.
+
+Package: libptexenc-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}, libptexenc1 (= ${binary:Version}), ${shlibs:Depends}
+Description: TeX Live: ptex encoding library (development part)
+ This package contains the static library and header files for the
+ ptexenc library, a library for encoding support in pTeX, a Japanese
+ TeX engine.
+
+Package: libsynctex2
+Section: libs
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Description: TeX Live: SyncTeX parser library
+ Library for SyncTeX parsing support.
+
+Package: libsynctex-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}, libsynctex2 (= ${binary:Version})
+Description: TeX Live: SyncTeX parser library (development part)
+ This package contains the static library and header files for the SyncTex
+ parser library.
+
+Package: libtexlua53
+Section: oldlibs
+Architecture: all
+Depends: libtexlua53-5, ${misc:Depends}
+Description: transitional package (lib)
+ This is a transitional (library) package. It can safely be removed.
+
+Package: libtexlua53-5
+Section: libs
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Replaces: libtexlua53 (<< 2022.20220321.62855-2~)
+Breaks: libtexlua53 (<< 2022.20220321.62855-2~)
+Description: TeX Live: Lua 5.3, modified for use with LuaTeX
+ The Lua 5.3 library as used within LuaTeX.
+
+Package: libtexlua53-dev
+Section: oldlibs
+Architecture: all
+Depends: libtexlua-dev, ${misc:Depends}
+Description: transitional package (dev)
+ This is a transitional (development) package. It can safely be removed.
+
+Package: libtexlua-dev
+Section: libdevel
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends}, libtexlua53-5 (= ${binary:Version})
+Replaces: libtexlua53-dev (<< 2022.20220321.62855-2~)
+Breaks: libtexlua53-dev (<< 2022.20220321.62855-2~)
+Description: TeX Live: Lua 5.3, modified for use with LuaTeX (development part)
+ This package contains the static library and header files for the texlua
+ library.
+
+Package: libtexluajit2
+Section: libs
+Architecture: amd64 armel armhf hurd-i386 i386 kfreebsd-amd64 kfreebsd-i386 powerpc
+Multi-Arch: same
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Pre-Depends: ${misc:Pre-Depends}
+Description: TeX Live: LuaJIT, modified for use with LuaJITTeX
+ The LuaJIT library as used within LuaJITTeX.
+
+Package: libtexluajit-dev
+Section: libdevel
+Architecture: amd64 armel armhf hurd-i386 i386 kfreebsd-amd64 kfreebsd-i386 powerpc
+Multi-Arch: same
+Depends: ${misc:Depends}, libtexluajit2 (= ${binary:Version})
+Description: TeX Live: LuaJIT, modified for use with LuaJITTeX (development part)
+ This package contains the static library and header files for the texluajit
+ library.

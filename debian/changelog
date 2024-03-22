@@ -1,3 +1,96 @@
+texlive-bin (2023.20230311.66589-9) unstable; urgency=medium
+
+  * Rename / Remove obsolete patches form source package.
+  * Add DEP-3 headers to a few other patches.
+  * Add "DEB_BUILD_MAINT_OPTIONS = hardening=+all" to d/rules.
+  * Add patch for CVE-2024-25262 (Closes: #1064517).
+  * Remove surplus ${shlibs:Depends} from -dev packages.
+
+ -- Hilmar Preusse <hille42@web.de>  Fri, 23 Feb 2024 22:59:00 +0100
+
+texlive-bin (2023.20230311.66589-8) unstable; urgency=high
+
+  * Untighten version check of zlib in texk/web2c/luatexdir/luazlib/lzlib.c
+    again to make binaries linked with 1.2.x runnable with 1.3.x
+    (Closes: #1056183).
+
+ -- Hilmar Preusse <hille42@web.de>  Mon, 20 Nov 2023 08:45:38 +0000
+
+texlive-bin (2023.20230311.66589-7) unstable; urgency=medium
+
+  * Add patch to fix pdflatex's ToUnicode map on Big Endian
+    (Closes: #1054218).
+  * Suggest texlive-binaries-sse2 only on arches, where it is
+    available.
+  * Add "hintview" to list of suggested package of texlive-binaries.
+  * Extend the list of arches, where luajit binaries are available: arm64.
+  * Extend gbp.conf: "gbp pull" should update pristine-tar branch too.
+
+ -- Hilmar Preusse <hille42@web.de>  Thu, 09 Nov 2023 21:39:01 +0000
+
+texlive-bin (2023.20230311.66589-6) unstable; urgency=medium
+
+  * Fix Architecture field of the new texlive-binaries-sse2 package.
+    This should fix build failures on systems w/o *jit* binaries.
+
+ -- Hilmar Preusse <hille42@web.de>  Thu, 14 Sep 2023 23:27:32 +0200
+
+texlive-bin (2023.20230311.66589-5) unstable; urgency=medium
+
+  * Split luajit based binaries into texlive-binaries-sse2 to make
+    TL usable on non-sse2 capable CPU's at all (Closes: #1041148).
+  * Remove kfreebsd* from LuaJIT arches.
+  * Add the embedded-library lintian override in the old format, to
+    cheat ftp-master.
+  * Add information of status of poppler support to d/rules file.
+
+ -- Hilmar Preusse <hille42@web.de>  Sat, 09 Sep 2023 11:57:07 +0200
+
+texlive-bin (2023.20230311.66589-4) unstable; urgency=medium
+
+  * Add "Breaks: texlive-formats-extra (<< 2023.20230613)" to make
+    sure hitex reads a fixed file hiplainpage.tex (Closes: #1041508).
+
+ -- Hilmar Preusse <hille42@web.de>  Sun, 03 Sep 2023 08:54:53 +0200
+
+texlive-bin (2023.20230311.66589-3) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- Hilmar Preusse <hille42@web.de>  Sun, 27 Aug 2023 23:46:07 +0200
+
+texlive-bin (2023.20230311.66589-2) experimental; urgency=medium
+
+  * Add fixes for bibtex(8) to (hopefully) fix build failure on
+    armhf. Bump bibtex-x to version 4.01.
+
+ -- Hilmar Preusse <hille42@web.de>  Mon, 24 Jul 2023 23:48:05 +0200
+
+texlive-bin (2023.20230311.66589-1) experimental; urgency=medium
+
+  * New upstream snapshot made for TL 2023.
+    - Remove sources of dvisvgm from orig.tar.xz, we don't build
+      it anyways.
+    - New luatex version
+      + Fixes issues with discretionaries when priorities are used
+        (Closes: #1018206).
+      + Contains fix for CVE-2023-32668 (Closes: #1041149), add Breaks
+        statement for old context.
+    - Refresh / Disable patches.
+  * Fix BD:
+    - Add libpotrace-dev
+    - Replace libfontconfig1-dev by libfontconfig-dev
+  * Fix / Add Lintian Overrides.
+  * Convert d/copyright into DEP5.
+  * Add syntax fixes for:
+    - luatex.1 (Closes: #1037553).
+    - bibtex.original.1 (Closes: #1039975).
+    - detex.1 (Closes: #1039976).
+    - kpsewhich.1 (Closes: #1039977)
+    - axohelp.1 (Closes: #1039978)
+
+ -- Hilmar Preusse <hille42@web.de>  Tue, 18 Jul 2023 23:21:48 +0200
+
 texlive-bin (2022.20220321.62855-5) unstable; urgency=medium
 
   [ Hilmar Preusse ]

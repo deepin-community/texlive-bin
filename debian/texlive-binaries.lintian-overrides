@@ -1,26 +1,34 @@
-# poppler >= 0.62 is necessary for building TeX Live
-# As soon as poppler is updated in unstable the system library will
-# be used for compilation.
-texlive-binaries: embedded-library poppler usr/bin/pdftex
-texlive-binaries: embedded-library poppler usr/bin/pdftosrc
-texlive-binaries: no-manual-page usr/bin/etex
+# TL upstream stopped using poppler to get pdf support in pdftex
+# and pdftosrc. Instead they use the shipped xpdf "library". The
+# configure option "--with-system-xpdf" does not do anything.
+# https://tug.org/pipermail/tex-live/2023-September/049457.html ff.
+texlive-binaries: embedded-library poppler [usr/bin/pdftex]
+texlive-binaries: embedded-library poppler [usr/bin/pdftosrc]
+# The old, non-hinted Lintian syntax is required because FTP Masters
+# is running an older version of Lintian.  The following 2 lines can be
+# removed at some point in the future.
+texlive-binaries: embedded-library usr/bin/pdftex: poppler
+texlive-binaries: embedded-library usr/bin/pdftosrc: poppler
+texlive-binaries: no-manual-page [usr/bin/etex]
 #texlive-binaries: no-manual-page usr/bin/gregorio
-texlive-binaries: no-manual-page usr/bin/luajithbtex
+# Moved to texlive-binaries-sse2
+#texlive-binaries: no-manual-page [usr/bin/luajithbtex]
 #texlive-binaries: no-manual-page usr/bin/mflua
 # #970746
-texlive-binaries: no-manual-page usr/bin/mflua-nowin
-texlive-binaries: no-manual-page usr/bin/mfluajit
-texlive-binaries: no-manual-page usr/bin/mfluajit-nowin
+texlive-binaries: no-manual-page [usr/bin/mflua-nowin]
+# Moved to texlive-binaries-sse2
+#texlive-binaries: no-manual-page [usr/bin/mfluajit]
+#texlive-binaries: no-manual-page [usr/bin/mfluajit-nowin]
 #texlive-binaries: no-manual-page usr/bin/mfplain
 #texlive-binaries: no-manual-page usr/bin/omfonts
 #texlive-binaries: no-manual-page usr/bin/pbibtex
 #texlive-binaries: no-manual-page usr/bin/pdvitomp
 #texlive-binaries: no-manual-page usr/bin/pdvitype
 # #970746
-texlive-binaries: no-manual-page usr/bin/pmpost
-texlive-binaries: no-manual-page usr/bin/r-mpost
-texlive-binaries: no-manual-page usr/bin/r-pmpost
-texlive-binaries: no-manual-page usr/bin/r-upmpost
+texlive-binaries: no-manual-page [usr/bin/pmpost]
+texlive-binaries: no-manual-page [usr/bin/r-mpost]
+texlive-binaries: no-manual-page [usr/bin/r-pmpost]
+texlive-binaries: no-manual-page [usr/bin/r-upmpost]
 #texlive-binaries: no-manual-page usr/bin/t4ht
 #texlive-binaries: no-manual-page usr/bin/tex4ht
 #texlive-binaries: no-manual-page usr/bin/texluajit
@@ -29,11 +37,11 @@ texlive-binaries: no-manual-page usr/bin/r-upmpost
 #texlive-binaries: no-manual-page usr/bin/updvitomp
 #texlive-binaries: no-manual-page usr/bin/updvitype
 # #970746
-texlive-binaries: no-manual-page usr/bin/upmendex
-texlive-binaries: no-manual-page usr/bin/upmpost
+texlive-binaries: no-manual-page [usr/bin/upmendex]
+texlive-binaries: no-manual-page [usr/bin/upmpost]
 #texlive-binaries: no-manual-page usr/bin/wofm2opl
 #texlive-binaries: no-manual-page usr/bin/wopl2ofm
 #texlive-binaries: no-manual-page usr/bin/wovf2ovp
 #texlive-binaries: no-manual-page usr/bin/wovp2ovf
 #texlive-binaries: no-manual-page usr/bin/xdvi-xaw
-texlive-binaries: spare-manual-page usr/share/man/man1/cweb.1.gz
+texlive-binaries: spare-manual-page [usr/share/man/man1/cweb.1.gz]
